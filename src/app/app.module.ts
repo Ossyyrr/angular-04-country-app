@@ -9,7 +9,7 @@ import { ContactPageComponent } from './shared/pages/contact-page/contact-page.c
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, AppRoutingModule, SharedModule],
+  imports: [BrowserModule, AppRoutingModule, SharedModule, CountriesModule],
   providers: [],
   bootstrap: [AppComponent],
 })
