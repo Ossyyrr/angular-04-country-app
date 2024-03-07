@@ -7,7 +7,9 @@ import { Region } from '../interfaces/region.type';
 
 @Injectable({ providedIn: 'root' })
 export class CountriesService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.LoadFromLocalStorange();
+  }
   private apiUrl: string = 'https://restcountries.com/v3.1';
 
   public cacheStore: CacheStore = {
@@ -15,6 +17,15 @@ export class CountriesService {
     byCountry: { term: '', countries: [] },
     byRegion: { region: '', countries: [] },
   };
+
+  private saveToLocalStorange() {
+    localStorage.setItem('cacheStore', JSON.stringify(this.cacheStore));
+  }
+
+  private LoadFromLocalStorange() {
+    if (!localStorage.getItem('cacheStore')) return;
+    this.cacheStore = JSON.parse(localStorage.getItem('cacheStore') || '{}');
+  }
 
   private getCountriesRequest(url: string): Observable<Country[]> {
     return this.http.get<Country[]>(url).pipe(
@@ -27,7 +38,8 @@ export class CountriesService {
     return this.getCountriesRequest(`${this.apiUrl}/capital/${term}`).pipe(
       tap((countries) => {
         this.cacheStore.byCapital = { term, countries };
-      })
+      }),
+      tap(() => this.saveToLocalStorange())
     );
   }
 
@@ -35,7 +47,8 @@ export class CountriesService {
     return this.getCountriesRequest(`${this.apiUrl}/name/${term}`).pipe(
       tap((countries) => {
         this.cacheStore.byCountry = { term, countries };
-      })
+      }),
+      tap(() => this.saveToLocalStorange())
     );
   }
 
@@ -43,7 +56,8 @@ export class CountriesService {
     return this.getCountriesRequest(`${this.apiUrl}/region/${term}`).pipe(
       tap((countries) => {
         this.cacheStore.byRegion = { region: term, countries };
-      })
+      }),
+      tap(() => this.saveToLocalStorange())
     );
   }
 
