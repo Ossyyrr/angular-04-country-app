@@ -16,8 +16,15 @@ import { Subject, Subscription, debounceTime } from 'rxjs';
   styleUrl: './search-box.component.css',
 })
 export class SearchBoxComponent implements OnInit, OnDestroy {
+  @Input() public initialTerm: string = '';
+  @Input() public placeholder: string = 'Search...';
+  @Output() public onValue: EventEmitter<string> = new EventEmitter();
   private debouncer: Subject<string> = new Subject<string>(); // Subject es un tipo especial de Observable
   private debouncerSuscription?: Subscription;
+
+  onKeyPress() {
+    this.debouncer.next(this.txtInput.nativeElement.value);
+  }
 
   ngOnInit(): void {
     this.debouncerSuscription = this.debouncer
@@ -27,8 +34,9 @@ export class SearchBoxComponent implements OnInit, OnDestroy {
       .subscribe((value) => {
         console.log('debouncer - ', value);
         this.onValue.emit(value);
-        this.txtInput.nativeElement.value = '';
       });
+
+    this.placeholder = this.initialTerm;
   }
 
   ngOnDestroy(): void {
@@ -36,16 +44,6 @@ export class SearchBoxComponent implements OnInit, OnDestroy {
     this.debouncerSuscription?.unsubscribe();
   }
 
-  @Input()
-  public placeholder: string = 'Search...';
-
-  @Output()
-  public onValue: EventEmitter<string> = new EventEmitter();
-
   @ViewChild('txtInput') // Referencia del input #txtTagInput
   public txtInput!: ElementRef<HTMLInputElement>;
-
-  onKeyPress() {
-    this.debouncer.next(this.txtInput.nativeElement.value);
-  }
 }
